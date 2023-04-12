@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = { "/v1/demo", "/demo" })
+@RequestMapping(value = { "/v1/demo", "/demo" }, produces = { MediaType.APPLICATION_JSON_VALUE,
+        MediaType.APPLICATION_XML_VALUE, "application/com.jimenezzj.tfcards-v1+json",
+        "application/com.jimenezzj.tfcards-v1+xml" })
 public class DemoResourceController {
 
     private MessageSource msgSrc;
 
-    @GetMapping
+    @GetMapping({ "", "/" })
     public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name) {
         var res = new HashMap<String, String>();
         var defaultPhrase = "Hi, there!";
