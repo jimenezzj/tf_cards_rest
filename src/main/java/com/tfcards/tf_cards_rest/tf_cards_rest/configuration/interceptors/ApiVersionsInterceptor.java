@@ -1,6 +1,5 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.configuration.interceptors;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -8,9 +7,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.http.MediaType;

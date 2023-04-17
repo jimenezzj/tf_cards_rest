@@ -1,21 +1,29 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
+import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.services.IDemoService;
+
+import jakarta.validation.Valid;
+import lombok.var;
 
 @RestController
 @RequestMapping(value = { "/v1/demo", "/demo" }, produces = { MediaType.APPLICATION_JSON_VALUE,
@@ -24,11 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoResourceController {
 
     private MessageSource msgSrc;
+    private IDemoService demoService;
+    private PhraseCommandToPhraseBase phraseConverter;
 
-    @GetMapping({ "", "/" })
+    @GetMapping({ "/hello" })
     public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name) {
         var res = new HashMap<String, String>();
-        var defaultPhrase = "Hi, there!";
+        var defaultPhrase = "Hi there, {0}!";
         res.put("msg", defaultPhrase);
         if (name != null && !name.isBlank()) {
             var propsMsgArgs = Arrays.asList(name).toArray(String[]::new);
@@ -39,9 +49,39 @@ public class DemoResourceController {
         return res;
     }
 
+    @PostMapping(path = { "", "/" })
+    public ResponseEntity<Map<String, Object>> createPhrase(@Valid @RequestBody PhraseBaseCommand newPhrase) {
+        Map<String, Object> res = new HashMap<>();
+        res.put("object", this.demoService.create(newPhrase));
+        res.put("msg", "Phrase was saved successfully!");
+        var newResourceUri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(((PhraseBaseCommand) res.get("object")).getId())
+                .toUri();
+        return ResponseEntity.created(newResourceUri).build();
+    }
+
+    @GetMapping({ "/", "" })
+    public Map<String, Object> getAll() {
+        Map<String, Object> res = new HashMap<>();
+        res.put("object", this.demoService.getAll());
+        res.put("msg", "Phrases were fetched sucessfully!");
+        return res;
+    }
+
     @Autowired
     public void setMsgSrc(MessageSource msgSrc) {
         this.msgSrc = msgSrc;
+    }
+
+    @Autowired
+    public void setDemoService(IDemoService pDemoService) {
+        this.demoService = pDemoService;
+    }
+
+    @Autowired
+    public void setPhraseConverter(PhraseCommandToPhraseBase phraseConverter) {
+        this.phraseConverter = phraseConverter;
     }
 
 }
