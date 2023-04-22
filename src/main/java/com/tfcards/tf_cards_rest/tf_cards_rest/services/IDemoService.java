@@ -12,9 +12,9 @@ public interface IDemoService {
 
     PhraseBase get(String pPhraseSubstr);
 
-    Set<PhraseBase> getAll();
+    Set<PhraseBaseCommand> getAll();
 
-    Set<PhraseBase> getAll(Optional<Integer> limit);
+    Set<PhraseBaseCommand> getAll(Optional<Integer> limit);
 
     PhraseBaseCommand create(PhraseBaseCommand newPhrase);
 

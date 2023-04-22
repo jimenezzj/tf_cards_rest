@@ -1,8 +1,6 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.commands;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-
 import lombok.Getter;
 import lombok.Setter;
 

@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
+import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseCommand;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
-import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.services.IDemoService;
 
 import jakarta.validation.Valid;
@@ -35,6 +35,7 @@ public class DemoResourceController {
     private MessageSource msgSrc;
     private IDemoService demoService;
     private PhraseCommandToPhraseBase phraseConverter;
+    private PhraseBaseToPhraseCommand phraseCmdConverter;
 
     @GetMapping({ "/hello" })
     public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name) {
@@ -74,7 +75,7 @@ public class DemoResourceController {
     public Map<String, Object> getById(@PathVariable("id") Long pId) {
         Map<String, Object> res = new HashMap<>();
         var phraseFound = this.demoService.get(pId);
-        res.put("object", phraseFound);
+        res.put("object", this.phraseCmdConverter.convert(phraseFound));
         res.put("msg", String.format("Phrase with id %s was fetched sucessfully!", pId));
         return res;
     }
@@ -92,6 +93,11 @@ public class DemoResourceController {
     @Autowired
     public void setPhraseConverter(PhraseCommandToPhraseBase phraseConverter) {
         this.phraseConverter = phraseConverter;
+    }
+
+    @Autowired
+    public void setPhraseCmdConverter(PhraseBaseToPhraseCommand phraseCmdConverter) {
+        this.phraseCmdConverter = phraseCmdConverter;
     }
 
 }
