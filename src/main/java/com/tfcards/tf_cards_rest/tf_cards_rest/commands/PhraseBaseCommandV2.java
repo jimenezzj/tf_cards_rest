@@ -2,6 +2,7 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.commands;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonFilter("PhraseFilter")
 public class PhraseBaseCommandV2 {
 
     private Long id;
@@ -32,7 +34,7 @@ public class PhraseBaseCommandV2 {
     @NotEmpty(message = "Name of author must be specified")
     private String author;
 
-    @FutureOrPresent    
+    @FutureOrPresent(message = "publish date must be equal or greater than current date")
     private LocalDate publishDate;
 
     @JsonIgnore

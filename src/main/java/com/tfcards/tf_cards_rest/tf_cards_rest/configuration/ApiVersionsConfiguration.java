@@ -14,5 +14,4 @@ public class ApiVersionsConfiguration extends WebMvcConfigurationSupport {
         super.addInterceptors(registry);
         registry.addInterceptor(new ApiVersionsInterceptor()).addPathPatterns("/demo/**");
     }
-
 }
