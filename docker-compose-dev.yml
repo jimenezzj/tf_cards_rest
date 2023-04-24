@@ -1,0 +1,23 @@
+version: '3'
+services:
+  tfmysqldb:
+    image: mysql:8-oracle
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DB}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  phpadmin_client:
+    image: phpmyadmin:5
+    restart: always
+    ports:
+      - 40:80
+    depends_on:
+      - tfmysqldb
+    environment:
+      - PMA_HOST=tfmysqldb
+
