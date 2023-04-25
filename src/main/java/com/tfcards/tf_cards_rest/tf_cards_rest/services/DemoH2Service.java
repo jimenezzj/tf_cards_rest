@@ -1,7 +1,6 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.services;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,7 +16,7 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
 @Service
-@Profile("H2_DB")
+@Profile({ "H2_DB", "MYSQL_DB" })
 public class DemoH2Service implements IDemoService {
 
     private final IDemoRepo demoRepo;

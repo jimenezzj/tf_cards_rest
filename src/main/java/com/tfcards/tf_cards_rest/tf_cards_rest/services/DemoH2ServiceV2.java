@@ -11,10 +11,9 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommandV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCmdV2ToPhrase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseToPhraseCommandV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
-import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list.IPhraseRepoList;
 
 @Service
-@Profile("H2_DB")
+@Profile({ "H2_DB", "MYSQL_DB" })
 public class DemoH2ServiceV2 implements IDemoServiceV2 {
 
     private final IDemoRepo demoRepo;

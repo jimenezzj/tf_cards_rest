@@ -62,11 +62,16 @@ public class DemoResourceV2Controller {
     }
 
     @GetMapping({ "/", "" })
-    public Map<String, Object> getAll() {
+    public MappingJacksonValue getAll() {
         Map<String, Object> res = new HashMap<>();
-        res.put("object", this.demoServ2.getAll());
+        var fetchedLPhrases = this.demoServ2.getAll();
+        res.put("object", fetchedLPhrases);
         res.put("msg", "Phrases were fetched sucessfully!");
-        return res;
+
+        MappingJacksonValue mappingJacksonVal = new MappingJacksonValue(res);
+        mappingJacksonVal.setFilters(new SimpleFilterProvider().setFailOnUnknownId(false));
+
+        return mappingJacksonVal;
     }
 
     @GetMapping({ "/{id}" })
