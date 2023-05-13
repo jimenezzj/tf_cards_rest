@@ -26,10 +26,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 
-    private final JwtEncoder jwtEncoder;
+    // private final JwtEncoder jwtEncoder;
 
-    public SecurityConfiguration(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
+    public SecurityConfiguration() {
+        // this.jwtEncoder = jwtEncoder;
     }
 
     @Bean
@@ -50,24 +50,24 @@ public class SecurityConfiguration {
         return security.build();
     }
 
-    @Autowired
-    public void configureGlobalAuthManager(AuthenticationManagerBuilder authManagerBuilder, DataSource dSource,
-            PasswordEncoder passEncoder)
-            throws Exception {
-        // var admin = User
-        // .withUsername("admin")
-        // // .password(passEncoder.encode("dummyadmin"))
-        // .password(passEncoder.encode("dummyadmin"))
-        // .roles("CLIENT", "ADMIN")
-        // .build();
-        // var client = User
-        // .withUsername("client")
-        // .roles("CLIENT")
-        // .password(passEncoder.encode("dummyclient"));
-        authManagerBuilder.jdbcAuthentication().dataSource(dSource).withDefaultSchema();
-        // authManagerBuilder.jdbcAuthentication().dataSource(dSource)
-        // .withDefaultSchema().withUser(admin).withUser(client);
-    }
+    // @Autowired
+    // public void configureGlobalAuthManager(AuthenticationManagerBuilder authManagerBuilder, DataSource dSource,
+    //         PasswordEncoder passEncoder)
+    //         throws Exception {
+    //     // var admin = User
+    //     // .withUsername("admin")
+    //     // // .password(passEncoder.encode("dummyadmin"))
+    //     // .password(passEncoder.encode("dummyadmin"))
+    //     // .roles("CLIENT", "ADMIN")
+    //     // .build();
+    //     // var client = User
+    //     // .withUsername("client")
+    //     // .roles("CLIENT")
+    //     // .password(passEncoder.encode("dummyclient"));
+    //     authManagerBuilder.jdbcAuthentication().dataSource(dSource).withDefaultSchema();
+    //     // authManagerBuilder.jdbcAuthentication().dataSource(dSource)
+    //     // .withDefaultSchema().withUser(admin).withUser(client);
+    // }
 
     /**
      * It provides a custom implt of datasrouce. Datasource prpos in .properties
