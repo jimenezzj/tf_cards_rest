@@ -2,6 +2,7 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +39,13 @@ public class DemoResourceController {
     private PhraseBaseToPhraseCommand phraseCmdConverter;
 
     @GetMapping({ "/hello" })
-    public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name) {
+    public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name, Locale locale) {
         var res = new HashMap<String, String>();
         var defaultPhrase = "Hi there, {0}!";
         res.put("msg", defaultPhrase);
         if (name != null && !name.isBlank()) {
             var propsMsgArgs = Arrays.asList(name).toArray(String[]::new);
-            String propPhrase = this.msgSrc.getMessage("demo.phrase", propsMsgArgs, defaultPhrase,
-                    LocaleContextHolder.getLocale());
+            String propPhrase = this.msgSrc.getMessage("demo.phrase", propsMsgArgs, defaultPhrase, locale);
             res.put("msg", propPhrase);
         }
         return res;
