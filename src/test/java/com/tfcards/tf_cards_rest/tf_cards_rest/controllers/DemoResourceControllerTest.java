@@ -2,7 +2,9 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.matchers.InstanceOf;
@@ -18,6 +20,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.util.StandardCharset;
 import com.tfcards.tf_cards_rest.tf_cards_rest.configuration.SecurityConfiguration;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseCommand;
@@ -40,6 +43,9 @@ class DemoResourceControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objWrapper;
 
     @Autowired
     MessageSource msgSrc;
@@ -96,5 +102,19 @@ class DemoResourceControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.msg", instanceOf(String.class)),
                         jsonPath("$.msg", is(phraseExpected)));
+    }
+
+    @Test
+    @WithMockUser(username = MOCK_USERNAME, password = MOCK_USER_PASS, roles = { "CLIENT" })
+    void testPostPhrase() throws Exception {
+        var userName = "Patricio";
+        Map<String, String> newPhrase = new Hashtable<>(
+                Map.of("id", "0", "phrase", "Heeeeeeeeeeeey DUDE?", "phraseType", "5"));
+        mockMvc.perform(
+                post("/v1/demo")
+                        .with(SecurityMockMvcRequestPostProcessors.httpBasic(MOCK_USERNAME, MOCK_USERNAME))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objWrapper.writeValueAsString(newPhrase)))
+                .andExpect(status().isCreated());
     }
 }
