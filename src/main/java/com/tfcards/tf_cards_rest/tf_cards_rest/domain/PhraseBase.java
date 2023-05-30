@@ -12,6 +12,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +23,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class PhraseBase extends BaseEntity {
 
     // @Id
@@ -42,6 +46,9 @@ public class PhraseBase extends BaseEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDate createdAt;
+
+    // @Versio
+    // private Integer version;
 
     public PhraseBase(Long id, String phrase) {
         setPhraseType(EPhraseType.EXPRESSION);
