@@ -18,4 +18,6 @@ public interface IDemoService {
 
     PhraseBaseCommand create(PhraseBaseCommand newPhrase);
 
+    PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate);
+
 }

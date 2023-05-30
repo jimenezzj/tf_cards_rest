@@ -66,4 +66,14 @@ public class DemoListService implements IDemoService {
         throw new UnsupportedOperationException("Unimplemented method 'getAll'");
     }
 
+    @Override
+    public PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate) {
+        var foundPhrase = this.get(phraseToUpdate.getId());
+        if (phraseToUpdate.getId() == null || foundPhrase.getId() == null)
+            throw new RuntimeException("Phrase with such a id could not be found");
+        var newBasePhrase = this.phraseConverter.convert(phraseToUpdate);
+        newBasePhrase.setId(foundPhrase.getId());
+        return this.phraseCmdConverter.convert(this.phrasesListRepo.save(newBasePhrase));
+    }
+
 }
