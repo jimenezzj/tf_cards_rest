@@ -7,6 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.internal.matchers.InstanceOf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +36,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,6 +63,12 @@ class DemoResourceControllerTest {
 
         // @MockBean
         // MessageSource msgSourceMock;
+
+        @Captor
+        ArgumentCaptor<PhraseBaseCommand> phraseCmdCapture;
+
+        @Captor
+        ArgumentCaptor<Long> phraseCmdIdCapture;
 
         PhraseCommandToPhraseBase phraseConverter;
 
@@ -150,5 +159,28 @@ class DemoResourceControllerTest {
                                 .andExpect(jsonPath("$.obj", instanceOf(Map.class)));
                 //
                 verify(this.demoServiceMock).update(any(PhraseBaseCommand.class));
+        }
+
+        @Test
+        @WithMockUser(username = MOCK_USERNAME, password = MOCK_USER_PASS, roles = { "CLIENT" })
+        public void testPatchPhrase() throws Exception {
+                var mockPatchedPhrase = new PhraseBaseCommand(3L, "Hi, how is it going?");
+                mockPatchedPhrase.setPhraseType(EPhraseType.GREET);
+                //
+                given(this.demoServiceMock.patchPhrase(anyLong(), any(PhraseBaseCommand.class)))
+                                .willReturn(mockPatchedPhrase);
+                // mockPatchedPhrase.setPhrase(newPhrase);
+                //
+                mockMvc.perform(
+                                patch("/v1/demo/{id}", mockPatchedPhrase.getId())
+                                                .with(SecurityMockMvcRequestPostProcessors.httpBasic(MOCK_USERNAME,
+                                                                MOCK_USER_PASS))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .accept(MediaType.APPLICATION_JSON)
+                                                .content(this.objWrapper.writeValueAsString(mockPatchedPhrase)))
+                                .andExpect(status().isNoContent()); //
+                verify(this.demoServiceMock).patchPhrase(phraseCmdIdCapture.capture(), phraseCmdCapture.capture());
+                assertEquals(mockPatchedPhrase.getPhrase(), phraseCmdCapture.getValue().getPhrase(), "");
+
         }
 }
