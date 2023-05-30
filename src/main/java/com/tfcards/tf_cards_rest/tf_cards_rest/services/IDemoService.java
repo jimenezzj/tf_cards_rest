@@ -6,6 +6,8 @@ import java.util.Set;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 
+import jakarta.validation.Valid;
+
 public interface IDemoService {
 
     PhraseBase get(Long id);
@@ -19,5 +21,7 @@ public interface IDemoService {
     PhraseBaseCommand create(PhraseBaseCommand newPhrase);
 
     PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate);
+
+    PhraseBaseCommand patchPhrase(Long id, @Valid PhraseBaseCommand patchedPhrase);
 
 }

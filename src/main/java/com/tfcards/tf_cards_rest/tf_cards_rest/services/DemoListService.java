@@ -14,6 +14,8 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseB
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list.IPhraseRepoList;
 
+import jakarta.validation.Valid;
+
 @Service
 @Primary
 @Profile({ "LIST_DB", "default" })
@@ -74,6 +76,19 @@ public class DemoListService implements IDemoService {
         var newBasePhrase = this.phraseConverter.convert(phraseToUpdate);
         newBasePhrase.setId(foundPhrase.getId());
         return this.phraseCmdConverter.convert(this.phrasesListRepo.save(newBasePhrase));
+    }
+
+    @Override
+    public PhraseBaseCommand patchPhrase(Long id, @Valid PhraseBaseCommand patchedPhrase) {
+        var foundPhrase = this.phrasesListRepo.getById(id);
+        if (foundPhrase == null)
+            throw new RuntimeException("Phrase with such a id could not be found");
+        if (patchedPhrase.getPhrase() != null)
+            foundPhrase.setPhrase(patchedPhrase.getPhrase());
+        if (patchedPhrase.getPhraseType() != null)
+            foundPhrase.setPhraseType(patchedPhrase.getPhraseType());
+        this.phrasesListRepo.save(this.phraseConverter.convert(patchedPhrase));
+        return null;
     }
 
 }

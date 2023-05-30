@@ -15,6 +15,8 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
+import jakarta.validation.Valid;
+
 @Service
 @Profile({ "H2_DB", "MYSQL_DB" })
 public class DemoH2Service implements IDemoService {
@@ -64,6 +66,18 @@ public class DemoH2Service implements IDemoService {
     public Set<PhraseBaseCommand> getAll(Optional<Integer> limit) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+    }
+
+    @Override
+    public PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
+
+    @Override
+    public PhraseBaseCommand patchPhrase(Long id, @Valid PhraseBaseCommand patchedPhrase) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'patchPhrase'");
     }
 
 }
