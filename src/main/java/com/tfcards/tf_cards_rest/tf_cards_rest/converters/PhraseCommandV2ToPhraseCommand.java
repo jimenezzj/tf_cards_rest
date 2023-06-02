@@ -5,14 +5,14 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
-import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommandV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 
 @Component
-public class PhraseCommandV2ToPhraseCommand implements Converter<PhraseBaseCommandV2, PhraseBaseCommand> {
+public class PhraseCommandV2ToPhraseCommand implements Converter<PhraseDtoV2, PhraseBaseCommand> {
 
     @Override
     @Nullable
-    public PhraseBaseCommand convert(PhraseBaseCommandV2 source) {
+    public PhraseBaseCommand convert(PhraseDtoV2 source) {
         if (source == null)
             throw new RuntimeException("Object to data bind cannot be null");
         var phraseV1 = new PhraseBaseCommand();

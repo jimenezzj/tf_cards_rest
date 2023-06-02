@@ -13,6 +13,7 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseComm
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
+import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
 import jakarta.validation.Valid;
@@ -24,29 +25,31 @@ public class DemoH2Service implements IDemoService {
     private final IDemoRepo demoRepo;
     private final PhraseCommandToPhraseBase phraseConverter;
     private final PhraseBaseToPhraseCommand phraseConverterCmd;
+    private final IPhraseMapper phraseMapper;
 
     public DemoH2Service(IDemoRepo demoRepo, PhraseCommandToPhraseBase pPhraseConverter,
-            PhraseBaseToPhraseCommand pPhraseConverterCmd) {
+            PhraseBaseToPhraseCommand pPhraseConverterCmd, IPhraseMapper pPhraseMapper) {
         this.demoRepo = demoRepo;
         this.phraseConverter = pPhraseConverter;
         this.phraseConverterCmd = pPhraseConverterCmd;
         this.demoRepo.save(new PhraseBase("Im Patrick!", EPhraseType.GREET, "Patrick", LocalDate.now().minusDays(10)));
+        this.phraseMapper = pPhraseMapper;
     }
 
     @Override
-    public PhraseBase get(Long id) {
+    public PhraseBaseCommand get(Long id) {
         var foundPhrase = this.demoRepo.findById(id);
         if (foundPhrase.isEmpty())
             throw new RuntimeException("Phrase with id specified was not found");
-        return foundPhrase.get();
+        return this.phraseMapper.phraseBaseToPhraseDtoV1(foundPhrase.get());
     }
 
     @Override
-    public PhraseBase get(String pPhraseSubstr) {
+    public PhraseBaseCommand get(String pPhraseSubstr) {
         var pFound = this.demoRepo.findByPhraseContaining(pPhraseSubstr);
-        if (pFound == null)
+        if (pFound.isEmpty())
             throw new RuntimeException("Phrase with the given  was not found");
-        return pFound;
+        return this.phraseMapper.phraseBaseToPhraseDtoV1(pFound.get());
     }
 
     @Override

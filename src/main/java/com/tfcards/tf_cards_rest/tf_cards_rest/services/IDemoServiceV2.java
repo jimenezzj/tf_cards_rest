@@ -3,18 +3,19 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.services;
 import java.util.Optional;
 import java.util.Set;
 
-import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommandV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 
 public interface IDemoServiceV2 {
-    
-    PhraseBaseCommandV2 get(Long id);
 
-    PhraseBaseCommandV2 get(String pPhraseSubstr);
+    Optional<PhraseDtoV2> get(Long id);
 
-    Set<PhraseBaseCommandV2> getAll();
+    Optional<PhraseDtoV2> get(String pPhraseSubstr);
 
-    Set<PhraseBaseCommandV2> getAll(Optional<Integer> limit);
+    Set<PhraseDtoV2> getAll();
 
-    PhraseBaseCommandV2 create(PhraseBaseCommandV2 newPhrase);
+    Set<PhraseDtoV2> getAll(Optional<Integer> limit);
 
+    Optional<PhraseDtoV2> create(PhraseDtoV2 newPhrase);
+
+    Optional<PhraseDtoV2> update(Long id, PhraseDtoV2 newPhrase);
 }

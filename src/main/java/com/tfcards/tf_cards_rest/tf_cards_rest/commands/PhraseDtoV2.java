@@ -18,7 +18,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonFilter("PhraseFilter")
-public class PhraseBaseCommandV2 {
+public class PhraseDtoV2 {
 
     private Long id;
 
