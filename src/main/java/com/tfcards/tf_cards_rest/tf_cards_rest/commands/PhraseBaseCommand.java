@@ -5,6 +5,8 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +14,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class PhraseBaseCommand {
 
     private Long id;

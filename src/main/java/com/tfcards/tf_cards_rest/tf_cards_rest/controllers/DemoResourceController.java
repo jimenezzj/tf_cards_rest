@@ -52,10 +52,10 @@ public class DemoResourceController {
         res.put("object", this.demoService.create(newPhrase));
         res.put("msg", "Phrase was saved successfully!");
         var newResourceUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+                .path("/v1/demo/{id}")
                 .buildAndExpand(((PhraseBaseCommand) res.get("object")).getId())
                 .toUri();
-        return ResponseEntity.created(newResourceUri).build();
+        return ResponseEntity.created(newResourceUri).body(res);
     }
 
     @GetMapping({ "/", "" })
