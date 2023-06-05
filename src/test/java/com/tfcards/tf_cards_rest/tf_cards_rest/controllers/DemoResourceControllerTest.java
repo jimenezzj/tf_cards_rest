@@ -171,6 +171,7 @@ class DemoResourceControllerTest {
                                 .andExpect(status().isNoContent()); //
                 verify(this.demoServiceMock).patchPhrase(phraseCmdIdCapture.capture(), phraseCmdCapture.capture());
                 assertEquals(mockPatchedPhrase.getPhrase(), phraseCmdCapture.getValue().getPhrase(), "");
+                assertEquals(mockPatchedPhrase.getPhraseType(), phraseCmdCapture.getValue().getPhraseType(), "");
 
         }
 }

@@ -13,6 +13,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import com.tfcards.tf_cards_rest.tf_cards_rest.exceptions.EntityNotFoundException;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
@@ -64,5 +66,26 @@ public class DemoResourceControllerTestIT {
         assertThrows(EntityNotFoundException.class, () -> {
             this.demoController.getById(-1L);
         }, "Expected result is controller method throws a custom exception");
+    }
+
+    @Test
+    void testSavePhrase() {
+        var newPhrase = PhraseBaseCommand.builder().phrase("Que pasa chavales?").phraseType(EPhraseType.EXPRESSION)
+                .build();
+        var createPhraseRes = this.demoController.createPhrase(newPhrase);
+        assertNotNull(createPhraseRes);
+        assertNotNull(createPhraseRes.getBody());
+        assertEquals(createPhraseRes.getStatusCode(), HttpStatus.CREATED);
+        assertNotNull(createPhraseRes.getHeaders().getLocation());
+        assertNotNull(createPhraseRes.getBody().get("object"));
+        assertNotNull(createPhraseRes.getBody().get("msg"));
+        assertEquals(createPhraseRes.getBody().get("msg").getClass(), String.class);
+        //
+        var locationArr = createPhraseRes.getHeaders().getLocation().getPath().split("/");
+        Long newPhraseId = Long.valueOf(locationArr[locationArr.length - 1]);
+        assertEquals(newPhraseId.getClass(), Long.class);
+        //
+        var storedPhrase = this.demoRepo.findById(newPhraseId);
+        assertNotNull(storedPhrase);
     }
 }
