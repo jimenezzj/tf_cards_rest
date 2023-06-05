@@ -1,7 +1,5 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
@@ -9,24 +7,18 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.internal.matchers.InstanceOf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.util.StandardCharset;
 import com.tfcards.tf_cards_rest.configuration.SecurityConfigTest;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
-import com.tfcards.tf_cards_rest.tf_cards_rest.configuration.SecurityConfiguration;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseCommand;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
@@ -38,9 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @WebMvcTest(DemoResourceController.class)
 @Import(SecurityConfigTest.class)
