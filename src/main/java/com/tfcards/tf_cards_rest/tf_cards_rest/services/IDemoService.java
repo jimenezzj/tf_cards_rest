@@ -22,6 +22,6 @@ public interface IDemoService {
 
     PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate);
 
-    PhraseBaseCommand patchPhrase(Long id, @Valid PhraseBaseCommand patchedPhrase);
+    PhraseBaseCommand patchPhrase(Long id, PhraseBaseCommand patchedPhrase);
 
 }

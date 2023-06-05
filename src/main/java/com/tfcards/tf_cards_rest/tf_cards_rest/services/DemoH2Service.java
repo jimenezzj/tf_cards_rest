@@ -49,7 +49,7 @@ public class DemoH2Service implements IDemoService {
     public PhraseBaseCommand get(String pPhraseSubstr) {
         var pFound = this.demoRepo.findByPhraseContaining(pPhraseSubstr);
         if (pFound.isEmpty())
-            throw new RuntimeException("Phrase with the given  was not found");
+            throw new EntityNotFoundException("Phrase with the given  was not found");
         return this.phraseMapper.phraseBaseToPhraseDtoV1(pFound.get());
     }
 
@@ -74,14 +74,25 @@ public class DemoH2Service implements IDemoService {
 
     @Override
     public PhraseBaseCommand update(PhraseBaseCommand phraseToUpdate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        var foundPhrase = this.demoRepo.findById(phraseToUpdate.getId());
+        if (foundPhrase.isEmpty())
+            throw new EntityNotFoundException(PhraseBase.class);
+        return this.phraseConverterCmd.convert(
+                this.demoRepo.save(this.phraseConverter.convert(phraseToUpdate)));
     }
 
     @Override
-    public PhraseBaseCommand patchPhrase(Long id, @Valid PhraseBaseCommand patchedPhrase) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'patchPhrase'");
+    public PhraseBaseCommand patchPhrase(Long id, PhraseBaseCommand patchedPhrase) {
+        var foundPhrase = this.demoRepo.findById(id);
+        if (foundPhrase.isEmpty())
+            throw new EntityNotFoundException(PhraseBase.class);
+        var phraseEnty = foundPhrase.get();
+        if (patchedPhrase.getPhrase() != null)
+            phraseEnty.setPhrase(patchedPhrase.getPhrase());
+        if (patchedPhrase.getPhraseType() != null)
+            phraseEnty.setPhraseType(patchedPhrase.getPhraseType());
+        return this.phraseConverterCmd.convert(
+                this.demoRepo.save(phraseEnty));
     }
 
 }
