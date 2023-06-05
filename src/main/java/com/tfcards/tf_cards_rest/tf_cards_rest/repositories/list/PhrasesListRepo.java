@@ -1,13 +1,27 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list;
 
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Repository;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
 @Repository
 public class PhrasesListRepo extends AbstractCrudRepo<PhraseBase> implements IPhraseRepoList {
+
+    public PhrasesListRepo() {
+        this.phrasesList.add(new PhraseBase("Hello {0}!", EPhraseType.GREET, "",
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+        this.phrasesList.add(new PhraseBase("How is it going?", EPhraseType.GREET, "",
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+        this.phrasesList.add(new PhraseBase("Hey there, {0}!", EPhraseType.GREET, "",
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+        this.phrasesList.add(new PhraseBase("What's up bro?", EPhraseType.GREET, "",
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+    }
 
     @Override
     public Set<PhraseBase> getAll() {
@@ -38,6 +52,14 @@ public class PhrasesListRepo extends AbstractCrudRepo<PhraseBase> implements IPh
     public PhraseBase findByPhraseContaining(String pPhraseSubstr) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findByPhraseContaining'");
+    }
+
+    protected Long getRandomPublishYear(Optional<Long> maxMinusYear) {
+        Long leftYearLimit = 0L;
+        Long rightYearLimit = 41L;
+        if (maxMinusYear.isPresent())
+            rightYearLimit = maxMinusYear.get();
+        return leftYearLimit + (long) (Math.random() * (rightYearLimit - leftYearLimit));
     }
 
 }

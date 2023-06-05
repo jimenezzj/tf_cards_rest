@@ -10,9 +10,9 @@ import jakarta.validation.Valid;
 
 public interface IDemoService {
 
-    PhraseBase get(Long id);
+    PhraseBaseCommand get(Long id);
 
-    PhraseBase get(String pPhraseSubstr);
+    PhraseBaseCommand get(String pPhraseSubstr);
 
     Set<PhraseBaseCommand> getAll();
 

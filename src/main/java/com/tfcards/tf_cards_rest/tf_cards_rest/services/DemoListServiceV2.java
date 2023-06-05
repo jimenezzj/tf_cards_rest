@@ -7,61 +7,64 @@ import java.util.stream.Collectors;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommandV2;
-import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCmdV2ToPhrase;
-import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseToPhraseCommandV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandV2ToPhraseCommand;
+import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list.IPhraseRepoList;
 
 @Service
 @Profile({ "LIST_DB" })
 public class DemoListServiceV2 implements IDemoServiceV2 {
 
-    private final IDemoService demoServ;
     private final IPhraseRepoList phraseRepo;
-    private final PhraseCmdV2ToPhrase phraseConverterv2;
-    private final PhraseToPhraseCommandV2 phraseCmdConverterv2;
-
-    public DemoListServiceV2(PhraseCmdV2ToPhrase phraseConverterv2, IDemoService demoServ,
-            PhraseToPhraseCommandV2 pPhraseCmdConverterV2, IPhraseRepoList phraseRepo) {
-        this.phraseConverterv2 = phraseConverterv2;
-        this.demoServ = demoServ;
-        this.phraseCmdConverterv2 = pPhraseCmdConverterV2;
+    private final IPhraseMapper phraseMapper;
+    public DemoListServiceV2(IPhraseRepoList phraseRepo, IPhraseMapper pPhraseMapper,
+            PhraseCommandV2ToPhraseCommand phraseBaseToPhraseDtoV2) {
         this.phraseRepo = phraseRepo;
+        this.phraseMapper = pPhraseMapper;
     }
 
     @Override
-    public PhraseBaseCommandV2 get(Long id) {
-        var foundPhrase = this.demoServ.get(id);
+    public Optional<PhraseDtoV2> get(Long id) {
         // TODO: use custom exception
+        var foundPhrase = this.phraseRepo.getById(id);
         if (foundPhrase == null)
-            throw new RuntimeException();
-        return this.phraseCmdConverterv2.convert(foundPhrase);
+            throw new RuntimeException("There's no such phrase with given id");
+        return Optional.of(this.phraseMapper.phraseBaseToPhraseDtoV2(foundPhrase));
     }
 
     @Override
-    public PhraseBaseCommandV2 get(String pPhraseSubstr) {
-        return this.phraseCmdConverterv2.convert(this.demoServ.get(pPhraseSubstr));
+    public Optional<PhraseDtoV2> get(String pPhraseSubstr) {
+        return Optional.of(
+                this.phraseMapper.phraseBaseToPhraseDtoV2(
+                        this.phraseRepo.findByPhraseContaining(pPhraseSubstr)));
     }
 
     @Override
-    public Set<PhraseBaseCommandV2> getAll() {
+    public Set<PhraseDtoV2> getAll() {
         return this.getAll(Optional.of(Integer.MAX_VALUE));
     }
 
     @Override
-    public Set<PhraseBaseCommandV2> getAll(Optional<Integer> limit) {
+    public Set<PhraseDtoV2> getAll(Optional<Integer> limit) {
         if (limit.isEmpty())
             limit = Optional.of(10);
         return this.phraseRepo.getAll().stream().limit(limit.get())
-                .map(this.phraseCmdConverterv2::convert)
+                .map(this.phraseMapper::phraseBaseToPhraseDtoV2)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public PhraseBaseCommandV2 create(PhraseBaseCommandV2 newPhrase) {
-        var pConverted = this.phraseConverterv2.convert(newPhrase);
-        var storedPhrase = this.phraseRepo.save(pConverted);
-        return this.phraseCmdConverterv2.convert(storedPhrase);
+    public Optional<PhraseDtoV2> create(PhraseDtoV2 newPhrase) {
+        var pConverted = this.phraseMapper.phraseDtoV2ToPhraseBase(newPhrase);
+        return Optional.of(
+                this.phraseMapper.phraseBaseToPhraseDtoV2(this.phraseRepo.save(pConverted)));
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> update(Long id, PhraseDtoV2 newPhrase) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
 }

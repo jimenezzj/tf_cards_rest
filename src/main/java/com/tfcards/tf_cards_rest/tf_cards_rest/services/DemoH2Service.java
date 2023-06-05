@@ -13,6 +13,7 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseComm
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
+import com.tfcards.tf_cards_rest.tf_cards_rest.exceptions.EntityNotFoundException;
 import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
@@ -40,7 +41,7 @@ public class DemoH2Service implements IDemoService {
     public PhraseBaseCommand get(Long id) {
         var foundPhrase = this.demoRepo.findById(id);
         if (foundPhrase.isEmpty())
-            throw new RuntimeException("Phrase with id specified was not found");
+            throw new EntityNotFoundException("Phrase with id specified was not found");
         return this.phraseMapper.phraseBaseToPhraseDtoV1(foundPhrase.get());
     }
 

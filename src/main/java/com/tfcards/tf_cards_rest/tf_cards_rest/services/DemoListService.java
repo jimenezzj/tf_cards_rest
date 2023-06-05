@@ -30,22 +30,19 @@ public class DemoListService implements IDemoService {
         this.phraseConverter = pPhraseConverter;
         this.phrasesListRepo = phrasesListRepo;
         this.phraseCmdConverter = phraseCmdConverter;
-        this.phrasesListRepo.save(new PhraseBase("Hello {0}!"));
-        this.phrasesListRepo.save(new PhraseBase("How is it going?"));
-        this.phrasesListRepo.save(new PhraseBase("Hey there, {0}!"));
-        this.phrasesListRepo.save(new PhraseBase("What's up bro?"));
     }
 
     @Override
-    public PhraseBase get(Long id) {
-        return phrasesListRepo.getById(id);
+    public PhraseBaseCommand get(Long id) {
+        return this.phraseCmdConverter.convert(phrasesListRepo.getById(id));
     }
 
     @Override
-    public PhraseBase get(String pPhraseSubstr) {
+    public PhraseBaseCommand get(String pPhraseSubstr) {
         return this.phrasesListRepo.getAll().stream()
                 .filter(p -> p.getPhrase().toLowerCase().contains(pPhraseSubstr.toLowerCase()))
                 .findFirst()
+                .map(this.phraseCmdConverter::convert)
                 .orElseThrow(() -> new RuntimeException("Phrase with the given  was not found"));
     }
 

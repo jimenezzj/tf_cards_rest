@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
-import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseBaseToPhraseCommand;
-import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandToPhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.services.IDemoService;
 
 import jakarta.validation.Valid;
-import lombok.var;
 
 @RestController
 @RequestMapping(value = { "/v1/demo", "/demo" }, produces = { MediaType.APPLICATION_JSON_VALUE,
@@ -39,8 +32,6 @@ public class DemoResourceController {
 
     private MessageSource msgSrc;
     private IDemoService demoService;
-    private PhraseCommandToPhraseBase phraseConverter;
-    private PhraseBaseToPhraseCommand phraseCmdConverter;
 
     @GetMapping({ "/hello" })
     public Map<String, String> getPhrase(@RequestParam(required = false, value = "") String name, Locale locale) {
@@ -70,8 +61,10 @@ public class DemoResourceController {
     @GetMapping({ "/", "" })
     public Map<String, Object> getAll() {
         Map<String, Object> res = new HashMap<>();
-        res.put("object", this.demoService.getAll());
-        res.put("msg", "Phrases were fetched sucessfully!");
+        var phrasesList = this.demoService.getAll();
+        var succesMsg = !phrasesList.isEmpty() ? "Phrases were fetched sucessfully!" : "There\'s no phrases";
+        res.put("object", phrasesList);
+        res.put("msg", succesMsg);
         return res;
     }
 
@@ -79,7 +72,7 @@ public class DemoResourceController {
     public Map<String, Object> getById(@PathVariable("id") Long pId) {
         Map<String, Object> res = new HashMap<>();
         var phraseFound = this.demoService.get(pId);
-        res.put("object", this.phraseCmdConverter.convert(phraseFound));
+        res.put("object", phraseFound);
         res.put("msg", String.format("Phrase with id %s was fetched sucessfully!", pId));
         return res;
     }
@@ -109,16 +102,6 @@ public class DemoResourceController {
     @Autowired
     public void setDemoService(IDemoService pDemoService) {
         this.demoService = pDemoService;
-    }
-
-    @Autowired
-    public void setPhraseConverter(PhraseCommandToPhraseBase phraseConverter) {
-        this.phraseConverter = phraseConverter;
-    }
-
-    @Autowired
-    public void setPhraseCmdConverter(PhraseBaseToPhraseCommand phraseCmdConverter) {
-        this.phraseCmdConverter = phraseCmdConverter;
     }
 
 }

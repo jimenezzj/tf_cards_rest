@@ -2,7 +2,6 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
@@ -20,7 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommandV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.services.IDemoServiceV2;
 
 import jakarta.validation.Valid;
@@ -38,23 +37,26 @@ public class DemoResourceV2Controller {
 
     @PostMapping(path = { "", "/" })
     public ResponseEntity<MappingJacksonValue> createPhrase(
-            @Valid @RequestBody PhraseBaseCommandV2 newPhrase) {
-        Map<String, Object> res = new HashMap<>();
+            @Valid @RequestBody PhraseDtoV2 newPhrase) {
         var storedPhrase = this.demoServ2.create(newPhrase);
-
-        var newResourceUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(storedPhrase.getId())
-                .toUri();
-
-        EntityModel<Map<String, Object>> resLinkWrapp = EntityModel.of(res);
-        WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(this.getClass(),
-                this.getById(storedPhrase.getId(), false));
-        resLinkWrapp.add(linkBuilder.withSelfRel());
-
+        if (storedPhrase.isEmpty()) {
+            // ? Here die under control
+        }
+        var p = storedPhrase.get();
+        Map<String, Object> res = new HashMap<>();
         res.put("body", storedPhrase);
         res.put("msg", "Phrase was saved successfully!");
-
+        // Builds a location URI baesd on the current method
+        var newResourceUri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(p.getId())
+                .toUri();
+        // HATEOAS impl, decorates response with resource URI to guide the user
+        EntityModel<Map<String, Object>> resLinkWrapp = EntityModel.of(res);
+        WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(this.getClass(),
+                this.getById(p.getId(), false));
+        resLinkWrapp.add(linkBuilder.withSelfRel());
+        // Use Jackson to set dynamic filters
         MappingJacksonValue mappingJackVal = new MappingJacksonValue(resLinkWrapp);
         mappingJackVal.setFilters(new SimpleFilterProvider().setFailOnUnknownId(false));
 
@@ -78,15 +80,19 @@ public class DemoResourceV2Controller {
     public MappingJacksonValue getById(@PathVariable("id") Long pId,
             @RequestParam(required = false) Boolean withId) {
         Map<String, Object> res = new HashMap<>();
-        PhraseBaseCommandV2 phraseFound = this.demoServ2.get(pId);
-
+        var phraseFound = this.demoServ2.get(pId);
+        if (phraseFound.isEmpty()) {
+            // ? Here die under control
+        }
+        // HATEOAS impl, decorates response with resource URI to guide the user
         EntityModel<Map<String, Object>> resMdl = EntityModel.of(res);
         WebMvcLinkBuilder link = WebMvcLinkBuilder.linkTo(this.getClass(), this.getAll());
         resMdl.add(link.withRel("all-phrases"));
 
-        res.put("object", phraseFound);
+        res.put("object", phraseFound.get());
         res.put("msg", String.format("Phrase with id %s was fetched sucessfully!", pId));
-
+        // Apply some dymanic filter, to Dto annotaed with PhraseFilter id
+        // TODO: Currently are fixed due to filter values are fixed
         MappingJacksonValue mappingJackVal = new MappingJacksonValue(resMdl);
         SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("msg", "phraseType",
                 "publishDate");

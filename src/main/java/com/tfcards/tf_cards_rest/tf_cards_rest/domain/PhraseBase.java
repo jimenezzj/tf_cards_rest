@@ -67,6 +67,7 @@ public class PhraseBase extends BaseEntity {
         this.phraseType = phraseType;
         this.author = author;
         this.publishDate = publishDate;
+        this.createdAt = LocalDate.now();
     }
 
     
