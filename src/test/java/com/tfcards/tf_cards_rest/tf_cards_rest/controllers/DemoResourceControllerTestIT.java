@@ -1,9 +1,12 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
@@ -23,7 +28,10 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import com.tfcards.tf_cards_rest.tf_cards_rest.exceptions.EntityNotFoundException;
+import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
+
+import jakarta.validation.ConstraintViolationException;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -34,6 +42,9 @@ public class DemoResourceControllerTestIT {
 
     @Autowired
     IDemoRepo demoRepo;
+
+    @Autowired
+    IPhraseMapper phraseMapper;
 
     @Test
     void testGetAll() {
@@ -87,5 +98,56 @@ public class DemoResourceControllerTestIT {
         //
         var storedPhrase = this.demoRepo.findById(newPhraseId);
         assertNotNull(storedPhrase);
+    }
+
+    @Test
+    void testUpdatePhrase() {
+        var existPhrase = this.demoRepo.findAll().get(0);
+        var existPhraseDto = phraseMapper.phraseBaseToPhraseDtoV1(existPhrase);
+        existPhraseDto.setPhrase("Acknowledge me!");
+        existPhraseDto.setPhraseType(EPhraseType.GRATITUDE);
+        var upRes = this.demoController.updatePhrase(existPhrase.getId(), existPhraseDto);
+        var upBody = upRes.getBody();
+        assertNotNull(upBody);
+        assertEquals(HttpStatus.OK, upRes.getStatusCode());
+        PhraseBaseCommand bodyObj = (PhraseBaseCommand) upBody.get("object");
+        assertNotNull(bodyObj);
+        assertNotEquals(existPhrase.getPhrase(), bodyObj.getPhrase());
+        assertNotEquals(existPhrase.getPhraseType(), bodyObj.getPhraseType());
+    }
+
+    @Test
+    void testUpdateNotFoundPhrase() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            this.demoController.updatePhrase(-1L, PhraseBaseCommand.builder().phrase("Random Greeting Phrase")
+                    .phraseType(EPhraseType.EXPRESSION).build());
+        });
+    }
+
+    @Test
+    void testPatchPhrase() {
+        var foundPhrase = this.demoRepo.findAll().get(0);
+        var foundPhraseMap = this.phraseMapper.phraseBaseToPhraseDtoV1(foundPhrase);
+        var updatedPhrase = "Heeeeey Randyyy!";
+        foundPhraseMap.setPhraseType(null);
+        foundPhraseMap.setPhrase(updatedPhrase);
+        var patchRes = this.demoController.patchPhrase(foundPhraseMap.getId(), foundPhraseMap);
+        assertNotNull(patchRes);
+        assertEquals(patchRes.getStatusCode(), HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    void testPatchInvalidPhrase() {
+        var ex = assertThrowsExactly(TransactionSystemException.class, () -> {
+            var foundPhrase = this.demoRepo.findAll().get(0);
+            var foundPhraseMap = this.phraseMapper.phraseBaseToPhraseDtoV1(foundPhrase);
+            var updatedPhrase = "Brooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo";
+            foundPhraseMap.setPhraseType(null);
+            foundPhraseMap.setPhrase(updatedPhrase);
+            this.demoController.patchPhrase(foundPhraseMap.getId(), foundPhraseMap);
+        });
+        assertInstanceOf(ConstraintViolationException.class, ex.getCause().getCause());
+        var exCons = (ConstraintViolationException) ex.getCause().getCause();
+        assertTrue(exCons.getConstraintViolations().size() >= 1);
     }
 }
