@@ -1,6 +1,12 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.commands;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +15,7 @@ import lombok.Setter;
 public class ApiError {
 
     private String msg;
-    // private Set<String> errors;
+    private Map<String, Set<String>> errors;
     private LocalDateTime timestamp;
 
     public ApiError(String pMsg) {
@@ -19,6 +25,6 @@ public class ApiError {
     public ApiError(String pMsg, LocalDateTime pTimeStamp) {
         setMsg(pMsg);
         setTimestamp(pTimeStamp);
-        // setErrors(Set.of());
+        setErrors(new HashMap<>());
     }
 }
