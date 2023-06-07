@@ -32,11 +32,13 @@ public class PhraseBase extends BaseEntity {
     // @JsonIgnore
     // private Long id;
 
-    @Size(min = 5, max = 255)
+    @Size(min = 6, max = 100)
     @NotNull
     @NotEmpty
+    @Column(length = 100)
     private String phrase;
 
+    @NotNull
     private EPhraseType phraseType;
 
     private String author;
@@ -61,7 +63,7 @@ public class PhraseBase extends BaseEntity {
         setPhrase(phrase);
     }
 
-    public PhraseBase(@Size(min = 5, max = 255) @NotNull @NotEmpty String phrase, EPhraseType phraseType, String author,
+    public PhraseBase(String phrase, EPhraseType phraseType, String author,
             LocalDate publishDate) {
         this.phrase = phrase;
         this.phraseType = phraseType;
@@ -70,5 +72,4 @@ public class PhraseBase extends BaseEntity {
         this.createdAt = LocalDate.now();
     }
 
-    
 }

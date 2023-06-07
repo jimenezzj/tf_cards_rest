@@ -20,7 +20,7 @@ public class PhraseBaseCommand {
 
     private Long id;
 
-    @Size(min = 5, max = 255)
+    @Size(min = 6, max = 100)
     @NotNull
     @NotEmpty(message = "A phrase cannot be empty")
     private String phrase;

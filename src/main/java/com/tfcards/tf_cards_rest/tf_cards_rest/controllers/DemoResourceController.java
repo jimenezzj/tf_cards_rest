@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +48,7 @@ public class DemoResourceController {
     }
 
     @PostMapping(path = { "", "/" })
-    public ResponseEntity<Map<String, Object>> createPhrase(@Valid @RequestBody PhraseBaseCommand newPhrase) {
+    public ResponseEntity<Map<String, Object>> createPhrase(@Validated @RequestBody PhraseBaseCommand newPhrase) {
         Map<String, Object> res = new HashMap<>();
         res.put("object", this.demoService.create(newPhrase));
         res.put("msg", "Phrase was saved successfully!");
@@ -82,14 +83,14 @@ public class DemoResourceController {
             @Valid @RequestBody PhraseBaseCommand updatedPhrase) {
         Map<String, Object> res = new HashMap<>();
         updatedPhrase.setId(id);
-        res.put("obj", this.demoService.update(updatedPhrase));
+        res.put("object", this.demoService.update(updatedPhrase));
         res.put("msg", String.format("Phrase with id: %d was updated", id));
         return ResponseEntity.ok(res);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Map<String, Object>> patchPhrase(@PathVariable Long id,
-            @Valid @RequestBody PhraseBaseCommand patchedPhrase) {
+            @RequestBody PhraseBaseCommand patchedPhrase) {
         this.demoService.patchPhrase(id, patchedPhrase);
         return ResponseEntity.noContent().build();
     }
@@ -104,4 +105,4 @@ public class DemoResourceController {
         this.demoService = pDemoService;
     }
 
-}
+    }

@@ -1,8 +1,10 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(DemoResourceController.class)
@@ -43,7 +46,7 @@ class DemoResourceControllerTest {
         MockMvc mockMvc;
 
         @Autowired
-        ObjectMapper objWrapper;
+        ObjectMapper objMapper;
 
         @Autowired
         MessageSource msgSrc;
@@ -66,7 +69,7 @@ class DemoResourceControllerTest {
 
         @Test
         @WithMockUser(username = "admin", password = "dummyadmin", roles = { "CLIENT", "ADMIN" })
-        void testGetPhrase() throws Exception {
+        void testDemoGetPhrase() throws Exception {
                 var user = "admin";
                 var pass = "dummyadmin";
                 var userName = "Kratos";
@@ -91,7 +94,7 @@ class DemoResourceControllerTest {
 
         @Test
         @WithMockUser(username = MOCK_USERNAME, password = MOCK_USER_PASS, roles = { "CLIENT" })
-        void testGetPhraseInEs() throws Exception {
+        void testDemoGetPhraseInEs() throws Exception {
                 var userName = "Patricio";
                 var phraseExpected = this.msgSrc.getMessage("demo.phrase", new String[] { userName }, "",
                                 new Locale("es"));
@@ -125,8 +128,27 @@ class DemoResourceControllerTest {
                                                 .with(SecurityMockMvcRequestPostProcessors.httpBasic(MOCK_USERNAME,
                                                                 MOCK_USER_PASS))
                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objWrapper.writeValueAsString(newPhrase)))
+                                                .content(objMapper.writeValueAsString(newPhrase)))
                                 .andExpect(status().isCreated());
+        }
+
+        @Test
+        @WithMockUser(username = MOCK_USERNAME, password = MOCK_USER_PASS, roles = { "CLIENT" })
+        void testPostPhraseWithErrors() throws Exception {
+                var badPhrase = PhraseBaseCommand.builder().build();
+                //
+                given(this.demoServiceMock.create(any(PhraseBaseCommand.class))).willReturn(badPhrase);
+                //
+                mockMvc.perform(
+                                post("/v1/demo")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(objMapper.writeValueAsString(badPhrase)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.msg", instanceOf(String.class)))
+                                .andExpect(jsonPath("$.errors", instanceOf(Map.class)))
+                                .andExpect(jsonPath("$.errors.all", instanceOf(List.class)))
+                                .andExpect(jsonPath("$.errors.phraseType", hasSize(greaterThanOrEqualTo(1))))
+                                .andExpect(jsonPath("$.errors.phrase", hasSize(greaterThanOrEqualTo(1))));
         }
 
         @Test
@@ -142,11 +164,11 @@ class DemoResourceControllerTest {
                                                 .with(SecurityMockMvcRequestPostProcessors.httpBasic(MOCK_USERNAME,
                                                                 MOCK_USER_PASS))
                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                .content(this.objWrapper.writeValueAsString(mockPhrase)))
+                                                .content(this.objMapper.writeValueAsString(mockPhrase)))
                                 .andExpect(status().isOk())
                                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(jsonPath("$.msg", instanceOf(String.class)))
-                                .andExpect(jsonPath("$.obj", instanceOf(Map.class)));
+                                .andExpect(jsonPath("$.object", instanceOf(Map.class)));
                 //
                 verify(this.demoServiceMock).update(any(PhraseBaseCommand.class));
         }
@@ -155,7 +177,7 @@ class DemoResourceControllerTest {
         @WithMockUser(username = MOCK_USERNAME, password = MOCK_USER_PASS, roles = { "CLIENT" })
         public void testPatchPhrase() throws Exception {
                 var mockPatchedPhrase = new PhraseBaseCommand(3L, "Hi, how is it going?");
-                mockPatchedPhrase.setPhraseType(EPhraseType.GREET);
+                // mockPatchedPhrase.setPhraseType(EPhraseType.GREET);
                 //
                 given(this.demoServiceMock.patchPhrase(anyLong(), any(PhraseBaseCommand.class)))
                                 .willReturn(mockPatchedPhrase);
@@ -167,7 +189,7 @@ class DemoResourceControllerTest {
                                                                 MOCK_USER_PASS))
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .accept(MediaType.APPLICATION_JSON)
-                                                .content(this.objWrapper.writeValueAsString(mockPatchedPhrase)))
+                                                .content(this.objMapper.writeValueAsString(mockPatchedPhrase)))
                                 .andExpect(status().isNoContent()); //
                 verify(this.demoServiceMock).patchPhrase(phraseCmdIdCapture.capture(), phraseCmdCapture.capture());
                 assertEquals(mockPatchedPhrase.getPhrase(), phraseCmdCapture.getValue().getPhrase(), "");
