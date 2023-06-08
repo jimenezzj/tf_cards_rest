@@ -13,16 +13,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseBaseCommand;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
@@ -33,9 +41,17 @@ import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
 
 import jakarta.validation.ConstraintViolationException;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+
 @SpringBootTest
 @ActiveProfiles("dev")
 public class DemoResourceControllerTestIT {
+
+    private static final String USERNAME = "admin";
+    private static final String USER_PASS = "dummyadmin";
 
     @Autowired
     DemoResourceController demoController;
@@ -45,6 +61,36 @@ public class DemoResourceControllerTestIT {
 
     @Autowired
     IPhraseMapper phraseMapper;
+
+    @Autowired
+    WebApplicationContext wac;
+
+    @Autowired
+    ObjectMapper objMapper;
+
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
+                .apply(springSecurity())
+                .build();
+    }
+
+    @Test
+    void testPatchPhraseFull() throws Exception {
+        var existPhrase = this.demoRepo.findAll().get(0);
+        var foundPhrase = this.phraseMapper.phraseBaseToPhraseDtoV1(existPhrase);
+        foundPhrase.setPhraseType(null);
+        mockMvc.perform(
+                patch("/v1/demo/{id}", foundPhrase.getId())
+                        .with(httpBasic(USERNAME, USER_PASS))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(this.objMapper.writeValueAsString(foundPhrase)))
+                // .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 
     @Test
     void testGetAll() {
@@ -134,6 +180,8 @@ public class DemoResourceControllerTestIT {
         var patchRes = this.demoController.patchPhrase(foundPhraseMap.getId(), foundPhraseMap);
         assertNotNull(patchRes);
         assertEquals(patchRes.getStatusCode(), HttpStatus.NO_CONTENT);
+        foundPhrase = this.demoRepo.findById(foundPhraseMap.getId()).orElse(null);
+        assertEquals(updatedPhrase, foundPhrase.getPhrase(), "Should be the same message");
     }
 
     @Test
