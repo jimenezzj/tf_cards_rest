@@ -33,7 +33,6 @@ public class DemoH2Service implements IDemoService {
         this.demoRepo = demoRepo;
         this.phraseConverter = pPhraseConverter;
         this.phraseConverterCmd = pPhraseConverterCmd;
-        this.demoRepo.save(new PhraseBase("Im Patrick!", EPhraseType.GREET, "Patrick", LocalDate.now().minusDays(10)));
         this.phraseMapper = pPhraseMapper;
     }
 

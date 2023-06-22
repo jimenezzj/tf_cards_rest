@@ -1,13 +1,18 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.domain;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -27,12 +32,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PhraseBase extends BaseEntity {
 
-    // @Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // @JsonIgnore
-    // private Long id;
+    // These @Generate* annotations does really nothig beacause it works only on
+    // primary-key fields
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(length = 36, columnDefinition = "varchar", nullable = false, unique = false, updatable = false)
+    private UUID phraseId;
 
-    @Size(min = 6, max = 100)
+    @Size(min = 6, max = 150)
     @NotNull
     @NotEmpty
     @Column(length = 100)
@@ -52,15 +59,10 @@ public class PhraseBase extends BaseEntity {
     // @Versio
     // private Integer version;
 
-    public PhraseBase(Long id, String phrase) {
-        setPhraseType(EPhraseType.EXPRESSION);
-        super.setId(id);
-        setPhrase(phrase);
-    }
-
     public PhraseBase(String phrase) {
         setPhraseType(EPhraseType.EXPRESSION);
         setPhrase(phrase);
+        setPhraseId(UUID.randomUUID());
     }
 
     public PhraseBase(String phrase, EPhraseType phraseType, String author,
@@ -70,6 +72,7 @@ public class PhraseBase extends BaseEntity {
         this.author = author;
         this.publishDate = publishDate;
         this.createdAt = LocalDate.now();
+        setPhraseId(UUID.randomUUID());
     }
 
 }
