@@ -27,7 +27,7 @@ public class PhraseDtoV2 {
 
     private Long id;
 
-    private UUID phraseID;
+    private UUID phraseId;
 
     @Size(min = 5, max = 255)
     @NotNull

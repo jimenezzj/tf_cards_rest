@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.stereotype.Repository;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
 @Repository
@@ -14,13 +15,13 @@ public class PhrasesListRepo extends AbstractCrudRepo<PhraseBase> implements IPh
 
     public PhrasesListRepo() {
         this.phrasesList.add(new PhraseBase("Hello {0}!", EPhraseType.GREET, "",
-                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty())), EDropdownCollection.Lang.EN));
         this.phrasesList.add(new PhraseBase("How is it going?", EPhraseType.GREET, "",
-                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty())), EDropdownCollection.Lang.EN));
         this.phrasesList.add(new PhraseBase("Hey there, {0}!", EPhraseType.GREET, "",
-                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty())), EDropdownCollection.Lang.EN));
         this.phrasesList.add(new PhraseBase("What's up bro?", EPhraseType.GREET, "",
-                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty()))));
+                LocalDate.now().minusYears(getRandomPublishYear(Optional.empty())), EDropdownCollection.Lang.EN));
     }
 
     @Override

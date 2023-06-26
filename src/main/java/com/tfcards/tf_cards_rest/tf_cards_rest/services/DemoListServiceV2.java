@@ -2,13 +2,16 @@ package com.tfcards.tf_cards_rest.tf_cards_rest.services;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
+import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseTranslationDto;
 import com.tfcards.tf_cards_rest.tf_cards_rest.converters.PhraseCommandV2ToPhraseCommand;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection.Lang;
 import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list.IPhraseRepoList;
 
@@ -66,5 +69,12 @@ public class DemoListServiceV2 implements IDemoServiceV2 {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
+
+    @Override
+    public PhraseDtoV2 addTranslationTo(UUID idPhrase, PhraseTranslationDto pTranslationDto) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addTranslationTo'");
+    }
+
 
 }

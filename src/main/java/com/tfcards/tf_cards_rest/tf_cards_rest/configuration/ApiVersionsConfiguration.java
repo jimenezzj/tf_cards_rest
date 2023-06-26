@@ -7,10 +7,16 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.tfcards.tf_cards_rest.tf_cards_rest.configuration.interceptors.ApiVersionsInterceptor;
 
 @Configuration
 public class ApiVersionsConfiguration extends WebMvcConfigurationSupport {
+
+    public ApiVersionsConfiguration(ObjectMapper objectMapper) {
+        objectMapper.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
+    }
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {

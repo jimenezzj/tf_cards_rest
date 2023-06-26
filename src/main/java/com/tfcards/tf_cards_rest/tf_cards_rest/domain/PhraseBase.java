@@ -6,10 +6,13 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.SequenceGenerator;
@@ -42,7 +45,7 @@ public class PhraseBase extends BaseEntity {
     @Size(min = 6, max = 150)
     @NotNull
     @NotEmpty
-    @Column(length = 100)
+    @Column(length = 150)
     private String phrase;
 
     @NotNull
@@ -59,6 +62,11 @@ public class PhraseBase extends BaseEntity {
     // @Versio
     // private Integer version;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(nullable = false)
+    private EDropdownCollection.Lang lang;
+
     public PhraseBase(String phrase) {
         setPhraseType(EPhraseType.EXPRESSION);
         setPhrase(phrase);
@@ -66,13 +74,14 @@ public class PhraseBase extends BaseEntity {
     }
 
     public PhraseBase(String phrase, EPhraseType phraseType, String author,
-            LocalDate publishDate) {
+            LocalDate publishDate, EDropdownCollection.Lang pLang) {
         this.phrase = phrase;
         this.phraseType = phraseType;
         this.author = author;
         this.publishDate = publishDate;
         this.createdAt = LocalDate.now();
         setPhraseId(UUID.randomUUID());
+        setLang(pLang);
     }
 
 }
