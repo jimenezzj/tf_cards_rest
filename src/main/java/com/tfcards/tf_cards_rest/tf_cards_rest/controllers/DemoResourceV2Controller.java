@@ -41,7 +41,7 @@ import jakarta.validation.Valid;
 public class DemoResourceV2Controller {
 
     public final static String BASE_PATH = "/v2/demo";
-    public final static String GET_PHRASE_BY_ID = BASE_PATH + "/{id}";
+    public final static String GET_PHRASE_BY_ID = "/{id}";
 
     private final IDemoServiceV2 demoServ2;
 
@@ -66,7 +66,7 @@ public class DemoResourceV2Controller {
         // HATEOAS impl, decorates response with resource URI to guide the user
         EntityModel<Map<String, Object>> resLinkWrapp = EntityModel.of(res);
         WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(this.getClass(),
-                this.getById(p.getId(), false, Locale.getDefault()));
+                this.getById(p.getId(), false, "", Locale.getDefault()));
         resLinkWrapp.add(linkBuilder.withSelfRel());
         // Use Jackson to set dynamic filters
         MappingJacksonValue mappingJackVal = new MappingJacksonValue(resLinkWrapp);
@@ -90,9 +90,11 @@ public class DemoResourceV2Controller {
 
     @GetMapping({ GET_PHRASE_BY_ID })
     public MappingJacksonValue getById(@PathVariable("id") Long pId,
-            @RequestParam(required = false) Boolean withId, Locale locale) {
+            @RequestParam(required = false) Boolean withId,
+            @RequestHeader(name = "Accept-Language", required = false) String header,
+            Locale locale) {
         Map<String, Object> res = new HashMap<>();
-        var phraseFound = this.demoServ2.get(pId);
+        var phraseFound = this.demoServ2.get(pId, Optional.of(locale));
         // locale.
         // ECollectionName.API_LANG;
         if (phraseFound.isEmpty()) {

@@ -1,6 +1,7 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.services;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -12,10 +13,12 @@ import org.springframework.stereotype.Service;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseTranslationDto;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection.Lang;
 import com.tfcards.tf_cards_rest.tf_cards_rest.exceptions.EntityNotFoundException;
 import com.tfcards.tf_cards_rest.tf_cards_rest.mappers.IPhraseMapper;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
+import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDropdownOptsRepo;
 
 @Service
 @Profile({ "H2_DB", "MYSQL_DB" })
@@ -23,10 +26,12 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
 
     private final IDemoRepo demoRepo;
     private final IPhraseMapper phraseMapper;
+    private final IDropdownOptsRepo dropdownOptsRepo;
 
-    public DemoH2ServiceV2(IDemoRepo demoRepo, IPhraseMapper pPhraseMapper) {
+    public DemoH2ServiceV2(IDemoRepo demoRepo, IPhraseMapper pPhraseMapper, IDropdownOptsRepo dropdownOptsRepo) {
         this.demoRepo = demoRepo;
         this.phraseMapper = pPhraseMapper;
+        this.dropdownOptsRepo = dropdownOptsRepo;
     }
 
     @Override
@@ -35,6 +40,26 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
                 this.phraseMapper.phraseBaseToPhraseDtoV2(
                         this.demoRepo.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Phrase with given id was not found"))));
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale) {
+        if (locale.isEmpty())
+            return this.get(id);
+        var crrLang = locale.get().getLanguage().toUpperCase();
+        if (!Lang.contains(crrLang))
+            throw new RuntimeException(
+                    "The language your are requesting is not supported. Use the trans query param to use auto translate");
+        var eLang = Lang.valueOf(crrLang);
+        var supportedLang = this.dropdownOptsRepo.findByCollectionNameAndValue(EDropdownCollection.API_LANG, eLang.toString());
+        if (supportedLang.isEmpty())
+            throw new RuntimeException(
+                    "The language your are requesting is not supported. Use the trans query param to use auto translate");
+        return Optional.of(
+                this.phraseMapper.phraseBaseToPhraseDtoV2(
+                        this.demoRepo.findByIdAndLangIs(id, eLang)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                        "Phrase with given id and provided language was not found"))));
     }
 
     @Override
@@ -89,10 +114,23 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
         // ? It updates the found phrase and reset some values in order to hibernate can
         // store id
         var foundPhrase = phraseCollection.get(0);
-        foundPhrase.setId(0L);
+        foundPhrase.setId(null);
         foundPhrase.setPhrase(pTranslationDto.getTranslatedPhrase());
         foundPhrase.setPublishDate(LocalDate.now());
+        foundPhrase.setLang(pTranslationDto.getLang());
         return this.phraseMapper.phraseBaseToPhraseDtoV2(this.demoRepo.save(foundPhrase));
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    }
+
+    @Override
+    public Set<PhraseDtoV2> getAll(UUID phraseId, Optional<Locale> locale) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
     }
 
 }

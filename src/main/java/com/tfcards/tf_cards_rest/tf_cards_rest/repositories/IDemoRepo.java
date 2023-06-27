@@ -9,11 +9,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection.Lang;
 
 @RepositoryRestResource(path = "phrase")
 public interface IDemoRepo extends JpaRepository<PhraseBase, Long> {
     Optional<PhraseBase> findByPhraseContaining(String pPhraseSubstr);
 
     List<PhraseBase> findByPhraseIdIs(UUID pPhraseId);
+
     // Optional<PhraseBase> findByPhraseIdIsAndphraseLangIs();
+    Optional<PhraseBase> findByIdAndLangIs(Long id, Lang lang);
+
 }

@@ -1,5 +1,6 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.services;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -75,6 +76,24 @@ public class DemoListServiceV2 implements IDemoServiceV2 {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addTranslationTo'");
     }
+
+	@Override
+	public Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'get'");
+	}
+
+	@Override
+	public Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'get'");
+	}
+
+	@Override
+	public Set<PhraseDtoV2> getAll(UUID phraseId, Optional<Locale> locale) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+	}
 
 
 }

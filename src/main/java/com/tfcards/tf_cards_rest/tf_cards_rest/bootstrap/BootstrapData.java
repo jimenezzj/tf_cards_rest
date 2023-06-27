@@ -1,16 +1,19 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.bootstrap;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseTranslationDto;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.DropdownOptions;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection.Lang;
 import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDemoRepo;
+import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.IDropdownOptsRepo;
 import com.tfcards.tf_cards_rest.tf_cards_rest.services.IDemoServiceV2;
 
 import lombok.RequiredArgsConstructor;
@@ -21,10 +24,18 @@ public class BootstrapData implements CommandLineRunner {
 
     private final IDemoRepo demoRepo;
     private final IDemoServiceV2 demoServiceV2;
+    private final IDropdownOptsRepo dropdownOptsRepo;
 
     @Override
     public void run(String... args) throws Exception {
+        loadDropdownOpts();
         loadDummyPhrases();
+    }
+
+    private void loadDropdownOpts() {
+        Arrays.asList(Lang.values())
+                .forEach(l -> this.dropdownOptsRepo
+                        .save(new DropdownOptions(EDropdownCollection.API_LANG, l.toString())));
     }
 
     private void loadDummyPhrases() {
@@ -36,10 +47,10 @@ public class BootstrapData implements CommandLineRunner {
                     "I Order The Food, You Cook The Food. The Customer Gets The Food. We Do That For 40 Years, And Then We Die",
                     EPhraseType.EXPRESSION, "SquidWard", LocalDate.now().minusYears(5), EDropdownCollection.Lang.EN));
             this.demoServiceV2.addTranslationTo(patrickPhrase.getPhraseId(),
-                    new PhraseTranslationDto("Hola soy Patricio", Lang.EN));
+                    new PhraseTranslationDto("Hola soy Patricio", Lang.ES));
             this.demoServiceV2.addTranslationTo(squidPhrase.getPhraseId(), new PhraseTranslationDto(
                     "Yo ordeno la comida, tu preparas la comida. El cliente recoge la comida. Y hacemos esto por 40 años, para luego morir",
-                    Lang.EN));
+                    Lang.ES));
         }
     }
 
