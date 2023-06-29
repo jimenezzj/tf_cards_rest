@@ -20,8 +20,12 @@ public class PhraseTranslationDto {
     
     @NotEmpty
     @Size(min = 5, max = 255)
-    private String translatedPhrase;
+    private String phraseToTranslate;
 
-    private Lang lang;
+    @NotNull
+    private Lang from;
+
+    @NotNull
+    private Lang to;
 
 }

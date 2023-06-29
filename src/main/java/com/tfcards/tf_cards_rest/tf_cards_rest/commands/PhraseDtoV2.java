@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
 
 import jakarta.validation.constraints.FutureOrPresent;
@@ -46,5 +47,9 @@ public class PhraseDtoV2 {
 
     @JsonIgnore
     private LocalDate createdAt;
+
+    // @Enumerated(EnumType.STRING)
+    @NotNull
+    private EDropdownCollection.Lang lang;
 
 }

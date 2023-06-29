@@ -22,36 +22,41 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BootstrapData implements CommandLineRunner {
 
-    private final IDemoRepo demoRepo;
-    private final IDemoServiceV2 demoServiceV2;
-    private final IDropdownOptsRepo dropdownOptsRepo;
+        private final IDemoRepo demoRepo;
+        private final IDemoServiceV2 demoServiceV2;
+        private final IDropdownOptsRepo dropdownOptsRepo;
 
-    @Override
-    public void run(String... args) throws Exception {
-        loadDropdownOpts();
-        loadDummyPhrases();
-    }
-
-    private void loadDropdownOpts() {
-        Arrays.asList(Lang.values())
-                .forEach(l -> this.dropdownOptsRepo
-                        .save(new DropdownOptions(EDropdownCollection.API_LANG, l.toString())));
-    }
-
-    private void loadDummyPhrases() {
-        if (this.demoRepo.count() == 0L) {
-            var patrickPhrase = this.demoRepo
-                    .save(new PhraseBase("Im Patrick!", EPhraseType.GREET, "Patrick", LocalDate.now().minusDays(10),
-                            EDropdownCollection.Lang.EN));
-            var squidPhrase = this.demoRepo.save(new PhraseBase(
-                    "I Order The Food, You Cook The Food. The Customer Gets The Food. We Do That For 40 Years, And Then We Die",
-                    EPhraseType.EXPRESSION, "SquidWard", LocalDate.now().minusYears(5), EDropdownCollection.Lang.EN));
-            this.demoServiceV2.addTranslationTo(patrickPhrase.getPhraseId(),
-                    new PhraseTranslationDto("Hola soy Patricio", Lang.ES));
-            this.demoServiceV2.addTranslationTo(squidPhrase.getPhraseId(), new PhraseTranslationDto(
-                    "Yo ordeno la comida, tu preparas la comida. El cliente recoge la comida. Y hacemos esto por 40 años, para luego morir",
-                    Lang.ES));
+        @Override
+        public void run(String... args) throws Exception {
+                loadDropdownOpts();
+                loadDummyPhrases();
         }
-    }
+
+        private void loadDropdownOpts() {
+                Arrays.asList(Lang.values())
+                                .forEach(l -> {
+                                        if (l != Lang.FR)
+                                                this.dropdownOptsRepo.save(new DropdownOptions(
+                                                                EDropdownCollection.API_LANG, l.toString()));
+                                });
+        }
+
+        private void loadDummyPhrases() {
+                if (this.demoRepo.count() == 0L) {
+                        var patrickPhrase = this.demoRepo
+                                        .save(new PhraseBase("Im Patrick!", EPhraseType.GREET, "Patrick",
+                                                        LocalDate.now().minusDays(10),
+                                                        EDropdownCollection.Lang.EN));
+                        var squidPhrase = this.demoRepo.save(new PhraseBase(
+                                        "I Order The Food, You Cook The Food. The Customer Gets The Food. We Do That For 40 Years, And Then We Die",
+                                        EPhraseType.EXPRESSION, "SquidWard", LocalDate.now().minusYears(5),
+                                        EDropdownCollection.Lang.EN));
+                        this.demoServiceV2.addTranslationTo(patrickPhrase.getPhraseId(),
+                                        new PhraseTranslationDto("Hola soy Patricio", Lang.EN, Lang.ES));
+                        this.demoServiceV2.addTranslationTo(squidPhrase.getPhraseId(), new PhraseTranslationDto(
+                                        "Yo ordeno la comida, tu preparas la comida. El cliente recoge la comida. Y hacemos esto por 40 años, para luego morir",
+                                        Lang.EN, Lang.ES));
+                }
+        }
 
 }

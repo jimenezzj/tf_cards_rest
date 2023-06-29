@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.tfcards.tf_cards_rest.tf_cards_rest.clients.IMsTranslatorClient;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseDtoV2;
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseTranslationDto;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
@@ -27,11 +28,14 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
     private final IDemoRepo demoRepo;
     private final IPhraseMapper phraseMapper;
     private final IDropdownOptsRepo dropdownOptsRepo;
+    private final IMsTranslatorClient msTranslatorClnt;
 
-    public DemoH2ServiceV2(IDemoRepo demoRepo, IPhraseMapper pPhraseMapper, IDropdownOptsRepo dropdownOptsRepo) {
+    public DemoH2ServiceV2(IDemoRepo demoRepo, IPhraseMapper pPhraseMapper, IDropdownOptsRepo dropdownOptsRepo,
+            IMsTranslatorClient pMsTranslatorClient) {
         this.demoRepo = demoRepo;
         this.phraseMapper = pPhraseMapper;
         this.dropdownOptsRepo = dropdownOptsRepo;
+        this.msTranslatorClnt = pMsTranslatorClient;
     }
 
     @Override
@@ -50,8 +54,9 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
         if (!Lang.contains(crrLang))
             throw new RuntimeException(
                     "The language your are requesting is not supported. Use the trans query param to use auto translate");
-        var eLang = Lang.valueOf(crrLang);
-        var supportedLang = this.dropdownOptsRepo.findByCollectionNameAndValue(EDropdownCollection.API_LANG, eLang.toString());
+        Lang eLang = Lang.valueOf(crrLang);
+        var supportedLang = this.dropdownOptsRepo.findByCollectionNameAndValue(EDropdownCollection.API_LANG,
+                eLang.toString());
         if (supportedLang.isEmpty())
             throw new RuntimeException(
                     "The language your are requesting is not supported. Use the trans query param to use auto translate");
@@ -60,6 +65,35 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
                         this.demoRepo.findByIdAndLangIs(id, eLang)
                                 .orElseThrow(() -> new EntityNotFoundException(
                                         "Phrase with given id and provided language was not found"))));
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale, Boolean autoTranslate) {
+        Optional<PhraseDtoV2> phraseRes = Optional.empty();
+        Lang eLang = Lang.EN;
+        if (autoTranslate == null || !autoTranslate || locale.isEmpty())
+            return this.get(id, locale);
+        else {
+            // TODO: Maybe a validation would make this code resusable
+            var crrLang = locale.get().getLanguage().toUpperCase();
+            if (!Lang.contains(crrLang))
+                throw new RuntimeException(
+                        "The language your are requesting is not supported. Use the trans query param to use auto translate");
+            eLang = Lang.valueOf(crrLang);
+            var supportedLang = this.dropdownOptsRepo.findByCollectionNameAndValue(EDropdownCollection.API_LANG,
+                    eLang.toString());
+            if (supportedLang.isPresent())
+                return this.get(id, locale);
+            //
+            var foundPhrase = this.get(id).get();
+            var transPhrase = this.msTranslatorClnt
+                    .getTranslatedPhrase(new PhraseTranslationDto(foundPhrase.getMsg(), foundPhrase.getLang(), eLang));
+            foundPhrase.setLang(eLang);
+            foundPhrase.setMsg(transPhrase.getText());
+            // foundPhrase.set
+            phraseRes = Optional.of(foundPhrase);
+        }
+        return phraseRes;
     }
 
     @Override
@@ -107,7 +141,7 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
         // TODO: this could be a custom validation
         phraseCollection.forEach(p -> {
             var isPhraseEqual = StringUtils.containsAnyIgnoreCase(StringUtils.normalizeSpace(p.getPhrase()),
-                    StringUtils.normalizeSpace(pTranslationDto.getTranslatedPhrase()));
+                    StringUtils.normalizeSpace(pTranslationDto.getPhraseToTranslate()));
             if (isPhraseEqual)
                 throw new RuntimeException("Phrase with the same chars is already stored");
         });
@@ -115,9 +149,9 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
         // store id
         var foundPhrase = phraseCollection.get(0);
         foundPhrase.setId(null);
-        foundPhrase.setPhrase(pTranslationDto.getTranslatedPhrase());
+        foundPhrase.setPhrase(pTranslationDto.getPhraseToTranslate());
         foundPhrase.setPublishDate(LocalDate.now());
-        foundPhrase.setLang(pTranslationDto.getLang());
+        foundPhrase.setLang(pTranslationDto.getTo());
         return this.phraseMapper.phraseBaseToPhraseDtoV2(this.demoRepo.save(foundPhrase));
     }
 
@@ -131,6 +165,12 @@ public class DemoH2ServiceV2 implements IDemoServiceV2 {
     public Set<PhraseDtoV2> getAll(UUID phraseId, Optional<Locale> locale) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale, Boolean autoTranslate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'get'");
     }
 
 }

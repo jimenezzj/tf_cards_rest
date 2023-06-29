@@ -15,9 +15,13 @@ public interface IDemoServiceV2 {
 
     Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale);
 
+    Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale, Boolean autoTranslate);
+
     Optional<PhraseDtoV2> get(String pPhraseSubstr);
 
     Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale);
+
+    Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale, Boolean autoTranslate);
 
     Set<PhraseDtoV2> getAll(UUID phraseId, Optional<Locale> locale);
 

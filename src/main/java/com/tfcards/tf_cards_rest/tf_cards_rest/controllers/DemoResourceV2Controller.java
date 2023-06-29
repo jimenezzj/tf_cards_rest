@@ -66,7 +66,7 @@ public class DemoResourceV2Controller {
         // HATEOAS impl, decorates response with resource URI to guide the user
         EntityModel<Map<String, Object>> resLinkWrapp = EntityModel.of(res);
         WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(this.getClass(),
-                this.getById(p.getId(), false, "", Locale.getDefault()));
+                this.getById(p.getId(), false, false, "", Locale.getDefault()));
         resLinkWrapp.add(linkBuilder.withSelfRel());
         // Use Jackson to set dynamic filters
         MappingJacksonValue mappingJackVal = new MappingJacksonValue(resLinkWrapp);
@@ -91,12 +91,11 @@ public class DemoResourceV2Controller {
     @GetMapping({ GET_PHRASE_BY_ID })
     public MappingJacksonValue getById(@PathVariable("id") Long pId,
             @RequestParam(required = false) Boolean withId,
+            @RequestParam(required = false, defaultValue = "false") Boolean trans,
             @RequestHeader(name = "Accept-Language", required = false) String header,
             Locale locale) {
         Map<String, Object> res = new HashMap<>();
-        var phraseFound = this.demoServ2.get(pId, Optional.of(locale));
-        // locale.
-        // ECollectionName.API_LANG;
+        var phraseFound = this.demoServ2.get(pId, Optional.of(locale), trans);
         if (phraseFound.isEmpty()) {
             // ? Here die under control or do it into the service Impl
         }
@@ -123,10 +122,10 @@ public class DemoResourceV2Controller {
         // ? If body lang is not specified it takes Accept-Header value
         var crrLang = header.split("-")[0].toUpperCase();
         // var langRegion = header.split("-")[0];
-        if (body.getLang() == null) {
+        if (body.getTo() == null) {
             if (!Lang.contains(crrLang))
                 throw new RuntimeException("The language of the phrase is not supported");
-            body.setLang(Lang.valueOf(crrLang));
+            body.setTo(Lang.valueOf(crrLang));
         }
         // ? Try add the translation to an already existing phrase
         Map<String, Object> res = new HashMap<>();

@@ -95,5 +95,17 @@ public class DemoListServiceV2 implements IDemoServiceV2 {
 		throw new UnsupportedOperationException("Unimplemented method 'getAll'");
 	}
 
+    @Override
+    public Optional<PhraseDtoV2> get(Long id, Optional<Locale> locale, Boolean autoTranslate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    }
+
+    @Override
+    public Optional<PhraseDtoV2> get(UUID phraseId, Optional<Locale> locale, Boolean autoTranslate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'get'");
+    }
+
 
 }

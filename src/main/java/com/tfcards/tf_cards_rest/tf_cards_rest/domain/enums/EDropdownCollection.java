@@ -10,7 +10,7 @@ public enum EDropdownCollection {
     API_LANG, API_VERSION;
 
     public enum Lang {
-        ES, EN, PT;
+        ES, EN, PT, FR;
 
         public static boolean contains(String value) {
             try {
