@@ -31,6 +31,8 @@ public interface IDemoServiceV2 {
 
     Optional<PhraseDtoV2> create(PhraseDtoV2 newPhrase);
 
+    Optional<PhraseDtoV2> create(PhraseDtoV2 newPhrase, Locale locale);
+
     Optional<PhraseDtoV2> update(Long id, PhraseDtoV2 newPhrase);
 
     PhraseDtoV2 addTranslationTo(UUID idPhrase, PhraseTranslationDto pTranslationDto);

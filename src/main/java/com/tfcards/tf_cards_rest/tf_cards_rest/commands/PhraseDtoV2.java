@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EPhraseType;
+import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.ETranslationType;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -51,5 +52,8 @@ public class PhraseDtoV2 {
     // @Enumerated(EnumType.STRING)
     @NotNull
     private EDropdownCollection.Lang lang;
+
+    @NotNull
+    private ETranslationType translationType;
 
 }

@@ -107,5 +107,11 @@ public class DemoListServiceV2 implements IDemoServiceV2 {
         throw new UnsupportedOperationException("Unimplemented method 'get'");
     }
 
+    @Override
+    public Optional<PhraseDtoV2> create(PhraseDtoV2 newPhrase, Locale locale) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'create'");
+    }
+
 
 }

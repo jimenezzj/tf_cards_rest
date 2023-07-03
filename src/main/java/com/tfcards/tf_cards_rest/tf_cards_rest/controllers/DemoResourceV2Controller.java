@@ -1,9 +1,11 @@
 package com.tfcards.tf_cards_rest.tf_cards_rest.controllers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.cglib.core.Local;
@@ -51,8 +53,8 @@ public class DemoResourceV2Controller {
 
     @PostMapping(path = { "", "/" })
     public ResponseEntity<MappingJacksonValue> createPhrase(
-            @Valid @RequestBody PhraseDtoV2 newPhrase) {
-        var storedPhrase = this.demoServ2.create(newPhrase);
+            @Valid @RequestBody PhraseDtoV2 newPhrase, Locale locale) {
+        var storedPhrase = this.demoServ2.create(newPhrase, locale);
         if (storedPhrase.isEmpty()) {
             // ? Here die under control
         }
@@ -108,8 +110,9 @@ public class DemoResourceV2Controller {
         // Apply some dymanic filter, to Dto annotaed with PhraseFilter id
         // TODO: Currently are fixed due to filter values are fixed
         MappingJacksonValue mappingJackVal = new MappingJacksonValue(resMdl);
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("msg", "phraseType",
-                "publishDate");
+        var propsFilteres = new HashSet<>(Set.of("createdAt", "lang"));
+        if (Boolean.FALSE.equals(trans)) propsFilteres.add("translationType");
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.serializeAllExcept(propsFilteres);
         FilterProvider filters = new SimpleFilterProvider().addFilter("PhraseFilter", filter);
         mappingJackVal.setFilters(filters);
         return mappingJackVal;
