@@ -4,9 +4,12 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.tfcards.tf_cards_rest.tf_cards_rest.commands.PhraseTranslationDto;
+import com.tfcards.tf_cards_rest.tf_cards_rest.configuration.SecurityConfiguration;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.DropdownOptions;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.PhraseBase;
 import com.tfcards.tf_cards_rest.tf_cards_rest.domain.enums.EDropdownCollection;
@@ -25,11 +28,30 @@ public class BootstrapData implements CommandLineRunner {
         private final IDemoRepo demoRepo;
         private final IDemoServiceV2 demoServiceV2;
         private final IDropdownOptsRepo dropdownOptsRepo;
+        //
+        private final PasswordEncoder passEncoder;
 
         @Override
         public void run(String... args) throws Exception {
                 loadDropdownOpts();
                 loadDummyPhrases();
+                loadDummyInMemoryUsers();
+        }
+
+        private void loadDummyInMemoryUsers() {
+                var admin = User
+                                .withUsername("admin")
+                                // .password(passEncoder.encode("dummyadmin"))
+                                .password(passEncoder.encode("dummyadmin"))
+                                .roles("CLIENT", "ADMIN")
+                                .build();
+                var client = User
+                                .withUsername("client")
+                                .roles("CLIENT")
+                                .password(passEncoder.encode("dummyclient"))
+                                .build();
+                SecurityConfiguration.APP_DUMMY_USERS.add(admin);
+                SecurityConfiguration.APP_DUMMY_USERS.add(client);
         }
 
         private void loadDropdownOpts() {
