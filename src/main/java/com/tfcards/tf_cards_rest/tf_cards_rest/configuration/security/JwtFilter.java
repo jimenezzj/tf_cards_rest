@@ -11,6 +11,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.tfcards.tf_cards_rest.tf_cards_rest.repositories.list.IUserPhraseRepoList;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +25,9 @@ import static org.springframework.http.HttpHeaders.*;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final UserDetailsService userDetailsService;
+    // private final UserDetailsService userDetailsService;
     private final JwtUtils jwtUtils;
+    private final IUserPhraseRepoList userRepoList;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -43,7 +46,8 @@ public class JwtFilter extends OncePerRequestFilter {
         // ? it makes sure user is not authenticated already
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // ? load user info
-            var userDetails = this.userDetailsService.loadUserByUsername(email);
+            // var userDetails = this.userDetailsService.loadUserByUsername(email);
+            var userDetails = this.userRepoList.findByUsername(email);
             if (Boolean.TRUE.equals(jwtUtils.isTokenValid(jwtToken, userDetails))) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null, userDetails.getAuthorities());
@@ -52,6 +56,5 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-        // throw new UnsupportedOperationException("Unimplemented method 'doFilterInternal'");
     }
 }
