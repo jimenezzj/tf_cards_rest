@@ -10,8 +10,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +35,7 @@ import static org.springframework.security.config.Customizer.*;
 @Profile({ "LIST_DB", "default" })
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfigurationJwt {
+public class SecurityConfigurationJwtV2 {
 
     private final JwtFilter jwtFilter;
     private final PasswordEncoder globalPassEncoder;
@@ -59,6 +61,12 @@ public class SecurityConfigurationJwt {
         security.headers(h -> h.frameOptions().sameOrigin());
         return security.build();
     }
+
+    @Bean
+    public AuthenticationManager authManager(AuthenticationConfiguration authConfiguration) throws Exception {
+        return authConfiguration.getAuthenticationManager();
+    }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider(PasswordEncoder passEncoder) {

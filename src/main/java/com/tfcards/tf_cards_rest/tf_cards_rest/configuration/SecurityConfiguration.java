@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 
 import static org.springframework.security.config.Customizer.*;
 
-@Profile({ "H2_DB", })
+@Profile({"MYSQL_DB"})
 @Configuration
 @AllArgsConstructor
 public class SecurityConfiguration {
@@ -69,7 +69,7 @@ public class SecurityConfiguration {
     /**
      * It provides a custom implt of datasrouce. Datasource prpos in .properties
      * files may stop working
-     * 
+     *
      * @return
      */
     @Bean

@@ -66,14 +66,15 @@ public class JwtUtils {
      * @return
      */
     private String createToken(UserDetails userDetails, Map<String, Object> claims) {
-        return Jwts.builder().setClaims(claims)
+        return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("authorities", userDetails.getAuthorities())
                 // ? this line and the next get a Date obj from different ways, just cause I
                 // want to try
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(LocalDateTime.now().plusHours(24).toInstant(ZoneOffset.UTC)))
-                .signWith(SignatureAlgorithm.HS256, jwtSigninKey).compact();
+                .signWith(SignatureAlgorithm.HS256, jwtSigninKey)
+                .setClaims(claims).compact();
     }
 
     private boolean isTokenExpired(String token) {
@@ -86,7 +87,7 @@ public class JwtUtils {
 
     /**
      * From JWT body it extracts as key/value pairs the info containded into it
-     *  
+     * 
      * @param token JWT as a string
      * @return
      */
